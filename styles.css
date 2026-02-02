@@ -1,0 +1,55 @@
+:root{
+  --bg1: #0f172a; /* deep navy */
+  --bg2: #6b21a8; /* purple */
+  --card-bg: rgba(255,255,255,0.96);
+  --accent: #ff7ab6;
+  --text: #0b1220;
+  --max-width: 900px;
+  --radius: 14px;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font-sans);
+  color:var(--text);
+  background: radial-gradient( circle at 10% 10%, rgba(255,255,255,0.03), transparent 10%), linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{width:100%;max-width:var(--max-width);}
+
+.card{
+  background:var(--card-bg);
+  border-radius:var(--radius);
+  padding:34px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.45);
+  backdrop-filter: blur(6px);
+}
+
+h1{
+  margin:0 0 12px 0;
+  font-size:clamp(1.4rem, 3vw, 2rem);
+  color:var(--bg1);
+}
+
+p{
+  margin:0 0 18px 0;
+  line-height:1.6;
+  font-size:1.05rem;
+  white-space:pre-wrap;
+}
+
+.meta{display:flex;justify-content:space-between;align-items:center}
+.meta small{color:#444}
+
+@media (max-width:600px){
+  .card{padding:20px}
+  p{font-size:1rem}
+}

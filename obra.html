@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Obra — Información</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <article class="card" id="card">
+      <h1 id="title">Cargando...</h1>
+      <p id="description">Por favor espera mientras cargamos la información de la obra.</p>
+      <footer class="meta">
+        <small id="meta">©</small>
+      </footer>
+    </article>
+  </main>
+
+  <script>
+    // Lee parámetro ?id=obra-id y carga /obras/obra-id.json
+    function getParam(name){
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    async function loadObra(id){
+      if(!id){
+        // Si no hay id, muestra mensaje con ejemplo
+        document.getElementById('title').textContent = 'Página de obras';
+        document.getElementById('description').textContent = 'Accede a esta página mediante un QR que incluya el parámetro ?id=nombre-de-la-obra. Ejemplo: ?id=obra-ejemplo';
+        document.getElementById('meta').textContent = '© Tu nombre · 2026';
+        return;
+      }
+
+      try{
+        const res = await fetch('/obras/' + encodeURIComponent(id) + '.json');
+        if(!res.ok) throw new Error('No se encontró la obra');
+        const data = await res.json();
+
+        document.getElementById('title').textContent = data.title || 'Sin título';
+        document.getElementById('description').textContent = data.description || '';
+        const meta = [];
+        if(data.author) meta.push(data.author);
+        if(data.year) meta.push(data.year);
+        if(data.technique) meta.push(data.technique);
+        document.getElementById('meta').textContent = meta.join(' · ') + (meta.length? ' · ' : '') + (data.rights || '');
+
+      }catch(err){
+        document.getElementById('title').textContent = 'Obra no encontrada';
+        document.getElementById('description').textContent = 'No se pudo cargar la obra con id "

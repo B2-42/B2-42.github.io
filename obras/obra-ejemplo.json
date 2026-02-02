@@ -1,0 +1,9 @@
+{
+  "id": "obra-ejemplo",
+  "title": "Obra Ejemplo",
+  "author": "Tu Nombre",
+  "year": "2026",
+  "technique": "Mixta sobre lienzo",
+  "description": "Esta es una descripción de ejemplo. Cambia este archivo por otro con la información real de tu obra. Cada archivo debe estar en /obras/<id>.json y el QR debe apuntar a https://{usuario}.github.io/obra.html?id=<id>",
+  "rights": "© Tu Nombre"
+}

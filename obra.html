@@ -3,49 +3,69 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Obra — Información</title>
+  <title>Obra — Visor</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="wrap">
-    <article class="card" id="card">
-      <h1 id="title">Cargando...</h1>
-      <p id="description">Por favor espera mientras cargamos la información de la obra.</p>
-      <footer class="meta">
-        <small id="meta">©</small>
-      </footer>
-    </article>
-  </main>
+  <div id="viewer">
+    <div id="loader">Cargando obra…</div>
+    <img id="obra-img" alt="Obra" />
+    <div id="caption" aria-hidden="true"></div>
+    <a id="back" href="/" aria-label="Volver">⟵ Volver</a>
+  </div>
 
   <script>
-    // Lee parámetro ?id=obra-id y carga /obras/obra-id.json
-    function getParam(name){
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
-    }
+    // toma ?id= y muestra /obras/<id>.(jpg|png|webp)
+    (function(){
+      const id = new URL(location.href).searchParams.get('id');
+      const loader = document.getElementById('loader');
+      const img = document.getElementById('obra-img');
+      const caption = document.getElementById('caption');
 
-    async function loadObra(id){
       if(!id){
-        // Si no hay id, muestra mensaje con ejemplo
-        document.getElementById('title').textContent = 'Página de obras';
-        document.getElementById('description').textContent = 'Accede a esta página mediante un QR que incluya el parámetro ?id=nombre-de-la-obra. Ejemplo: ?id=obra-ejemplo';
-        document.getElementById('meta').textContent = '© Tu nombre · 2026';
+        loader.textContent = 'Usa esta página con el parámetro ?id=<id>. Ejemplo: ?id=obra-ejemplo';
         return;
       }
 
-      try{
-        const res = await fetch('/obras/' + encodeURIComponent(id) + '.json');
-        if(!res.ok) throw new Error('No se encontró la obra');
-        const data = await res.json();
+      const exts = ['jpg','png','webp'];
+      let found = false;
 
-        document.getElementById('title').textContent = data.title || 'Sin título';
-        document.getElementById('description').textContent = data.description || '';
-        const meta = [];
-        if(data.author) meta.push(data.author);
-        if(data.year) meta.push(data.year);
-        if(data.technique) meta.push(data.technique);
-        document.getElementById('meta').textContent = meta.join(' · ') + (meta.length? ' · ' : '') + (data.rights || '');
+      function tryNext(i){
+        if(i>=exts.length){
+          loader.textContent = 'No se encontró la imagen para id="' + id + '"';
+          return;
+        }
+        const url = '/obras/' + encodeURIComponent(id) + '.' + exts[i];
+        // intenta cargar la imagen
+        const test = new Image();
+        test.onload = function(){
+          found = true;
+          img.src = url;
+          img.alt = caption.textContent || id;
+          loader.style.display = 'none';
+          img.style.display = 'block';
+        }
+        test.onerror = function(){ tryNext(i+1); }
+        test.src = url;
+      }
 
-      }catch(err){
-        document.getElementById('title').textContent = 'Obra no encontrada';
-        document.getElementById('description').textContent = 'No se pudo cargar la obra con id "
+      // intenta cargar caption desde /obras/<id>.json (opcional)
+      fetch('/obras/' + encodeURIComponent(id) + '.json').then(r=>{
+        if(!r.ok) throw new Error('no json');
+        return r.json();
+      }).then(data=>{
+        const parts = [];
+        if(data.title) parts.push(data.title);
+        if(data.author) parts.push(data.author);
+        if(parts.length) caption.textContent = parts.join(' · ');
+      }).catch(()=>{}).finally(()=>{ tryNext(0); });
+
+      // permitir tap para alternar caption
+      img.addEventListener('click', ()=>{
+        if(caption.style.opacity === '1') caption.style.opacity = '0'; else caption.style.opacity = '1';
+      });
+
+    })();
+  </script>
+</body>
+</html>
